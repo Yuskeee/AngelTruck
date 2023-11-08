@@ -2,22 +2,45 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+import 'package:path/path.dart';
+import 'package:async/async.dart';
 
 import 'consts.dart';
 import 'nav_bar.dart';
 
-Future<String> fetchData() async {
-  final response = await http.get(Uri.parse('http://152.67.52.107:5000'));
+import 'map_screen.dart';
 
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-    return response.body;
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load album');
-  }
+// Send data to the server and get the response
+upload(File imageFile) async {
+  // open a bytestream
+  var stream = http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+  // get file length
+  var length = await imageFile.length();
+
+  // string to uri
+  var uri = Uri.parse("http://152.67.52.107:5000/videoanalisys");
+
+  // create multipart request
+  var request = http.MultipartRequest("POST", uri);
+
+  // multipart that takes file
+  var multipartFile = http.MultipartFile('file', stream, length,
+      filename: basename(imageFile.path));
+
+  // add file to multipart
+  request.files.add(multipartFile);
+
+  // send
+  print("sending video");
+  var response = await request.send();
+  print(response.statusCode);
+
+  // listen for response
+  response.stream.transform(utf8.decoder).listen((value) {
+    print(value);
+  });
 }
 
 void main() => runApp(const MyApp());
@@ -30,12 +53,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late Future<String> futureAlbum;
-
   @override
   void initState() {
     super.initState();
-    futureAlbum = fetchData();
   }
 
   @override
@@ -52,20 +72,16 @@ class _MyAppState extends State<MyApp> {
               style: TextStyle(color: Color.fromARGB(255, 44, 44, 44))),
         ),
         bottomNavigationBar: const NavBar(),
-        body: Center(
-          child: FutureBuilder<String>(
-            future: futureAlbum,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text(snapshot.data!);
-              } else if (snapshot.hasError) {
-                return Text('${snapshot.error}');
-              }
-
-              // By default, show a loading spinner.
-              return const CircularProgressIndicator();
-            },
-          ),
+        body: Column(
+          children: [
+            const MapScreen(),
+            ElevatedButton(
+              onPressed: () {
+                upload(File('C:\\Users\\Yuske\\Downloads\\lapti.mp4'));
+              },
+              child: const Text('Upload'),
+            ),
+          ],
         ),
       ),
     );
