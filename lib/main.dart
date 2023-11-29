@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _pages = <Widget>[
     const HomeScreen(),
     const MapScreen(),
-    const HomeScreen(),
+    const VideoPlayerScreen(),
     const HomeScreen(),
   ];
 
