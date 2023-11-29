@@ -54,6 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
+  Text recordStop = Text('Record');
+  Icon recordStopIcon = Icon(Icons.circle, color: Colors.red);
+
   @override
   Widget build(BuildContext context) {
     // Home screen with the logo and the button to start the video analysis
@@ -71,20 +74,41 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-                onPressed: () {},
-                child: const Text('Start video analysis'),
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(kPrimaryColor),
-                  foregroundColor:
-                      MaterialStateProperty.all<Color>(Colors.black),
+              onPressed: () {
+                setState(() {
+                  if (recordStop.data == 'Record') {
+                    recordStop = Text('Stop');
+                    recordStopIcon = Icon(Icons.square);
+                  } else {
+                    recordStop = Text('Record');
+                    recordStopIcon = Icon(
+                      Icons.circle,
+                      color: Colors.red,
+                    );
+                  }
+                });
+              },
+              style: ButtonStyle(
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(kPrimaryColor),
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+              ),
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.2,
+                height: MediaQuery.of(context).size.height * 0.05,
+                child: Center(
+                    child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [recordStop, recordStopIcon],
                 )),
+              ),
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
                 onPressed: () {
                   upload(File('C:\\Users\\Yuske\\Downloads\\lapti.mp4'));
                 },
-                child: const Text('Upload'),
+                child: const Text('Upload Video'),
                 style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all<Color>(kPrimaryColor),
