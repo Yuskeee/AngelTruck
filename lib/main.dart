@@ -11,6 +11,7 @@ import 'consts.dart';
 import 'nav_bar.dart';
 
 import 'map_screen.dart';
+import 'cam_screen.dart';
 
 // Send data to the server and get the response
 upload(File imageFile) async {
