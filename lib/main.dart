@@ -1,47 +1,9 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'dart:io';
-import 'package:path/path.dart';
-import 'package:async/async.dart';
-
 import 'consts.dart';
 import 'nav_bar.dart';
 
+import 'home_screen.dart';
 import 'map_screen.dart';
-
-// Send data to the server and get the response
-upload(File imageFile) async {
-  // open a bytestream
-  var stream = http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
-  // get file length
-  var length = await imageFile.length();
-
-  // string to uri
-  var uri = Uri.parse("http://152.67.52.107:5000/videoanalisys");
-
-  // create multipart request
-  var request = http.MultipartRequest("POST", uri);
-
-  // multipart that takes file
-  var multipartFile = http.MultipartFile('file', stream, length,
-      filename: basename(imageFile.path));
-
-  // add file to multipart
-  request.files.add(multipartFile);
-
-  // send
-  print("sending video");
-  var response = await request.send();
-  print(response.statusCode);
-
-  // listen for response
-  response.stream.transform(utf8.decoder).listen((value) {
-    print(value);
-  });
-}
 
 void main() => runApp(const MyApp());
 
@@ -60,30 +22,61 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Angel Truck',
-      theme: ThemeData(
-          colorScheme: ColorScheme.fromSwatch().copyWith(
-        primary: kPrimaryColor,
-      )),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Angel Truck',
-              style: TextStyle(color: Color.fromARGB(255, 44, 44, 44))),
-        ),
-        bottomNavigationBar: const NavBar(),
-        body: Column(
-          children: [
-            const MapScreen(),
-            ElevatedButton(
-              onPressed: () {
-                upload(File('C:\\Users\\Yuske\\Downloads\\lapti.mp4'));
-              },
-              child: const Text('Upload'),
-            ),
-          ],
-        ),
-      ),
+      home: MyHomePage(title: 'Angel Truck'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  NavBar? navBar;
+  int _currentPage = 0;
+
+  void callbackPageChange(int index) {
+    setState(() {
+      _currentPage = index;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    navBar = NavBar(callbackPageChange);
+  }
+
+  // Pages of the app are stored in a list of widgets
+  final List<Widget> _pages = <Widget>[
+    const HomeScreen(),
+    const MapScreen(),
+    const HomeScreen(),
+    const HomeScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBody: true,
+      bottomNavigationBar: navBar,
+      body: _pages[_currentPage],
     );
   }
 }
