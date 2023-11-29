@@ -44,23 +44,30 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: FutureBuilder<String>(
-        future: futureAlbum,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Image.memory(
-              base64Decode(snapshot.data!),
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.8,
-              fit: BoxFit.fill,
-            );
-          } else if (snapshot.hasError) {
-            return Text('${snapshot.error}');
-          }
-          // By default, show a loading spinner.
-          return const CircularProgressIndicator();
-        },
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Map'),
+        backgroundColor: kPrimaryColor,
+        foregroundColor: Colors.black,
+      ),
+      body: Center(
+        child: FutureBuilder<String>(
+          future: futureAlbum,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Image.memory(
+                base64Decode(snapshot.data!),
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 0.8,
+                fit: BoxFit.fill,
+              );
+            } else if (snapshot.hasError) {
+              return Text('${snapshot.error}');
+            }
+            // By default, show a loading spinner.
+            return const CircularProgressIndicator();
+          },
+        ),
       ),
     );
   }
