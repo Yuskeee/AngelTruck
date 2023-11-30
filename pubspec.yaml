@@ -39,7 +39,6 @@ dependencies:
   http: ^0.13.6
   google_nav_bar: ^5.0.6
   html: ^0.15.4
-  video_player: ^2.8.1
   flutter_mjpeg: ^2.0.4
 
 dev_dependencies:

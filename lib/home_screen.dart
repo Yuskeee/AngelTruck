@@ -1,14 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:async/async.dart';
 
 import 'consts.dart';
-
-import 'nav_bar.dart';
 
 // Send data to the server and get the response
 upload(File imageFile) async {
