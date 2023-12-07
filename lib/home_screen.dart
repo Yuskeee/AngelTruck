@@ -8,7 +8,7 @@ import 'package:async/async.dart';
 import 'consts.dart';
 
 // Send data to the server and get the response
-upload(File imageFile) async {
+upload(File imageFile, Function callback) async {
   // open a bytestream
   var stream = http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
   // get file length
@@ -29,13 +29,29 @@ upload(File imageFile) async {
 
   // send
   print("sending video");
-  var response = await request.send();
-  print(response.statusCode);
+  try {
+    var response = await request.send();
+    print(response.statusCode);
 
-  // listen for response
-  response.stream.transform(utf8.decoder).listen((value) {
-    print(value);
-  });
+    // listen for response
+    response.stream.transform(utf8.decoder).listen((value) {
+      print(value);
+    });
+
+    // success/failure
+    if (response.statusCode == 200) {
+      print("Video uploaded");
+      // call function to change button status
+      callback(0);
+    } else {
+      print("Upload failed");
+      // call function to change button status
+      callback(1);
+    }
+  } catch (e) {
+    print(e);
+    callback(1);
+  }
 }
 
 class HomeScreen extends StatefulWidget {
@@ -53,6 +69,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Text recordStop = Text('Record');
   Icon recordStopIcon = Icon(Icons.circle, color: Colors.red);
+  int uploadButtonStatus = 0;
+
+  void changeUploadButtonStatus(int status) {
+    setState(() {
+      uploadButtonStatus = status;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,15 +126,23 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
                 onPressed: () {
-                  upload(File('C:\\Users\\Yuske\\Downloads\\lapti.mp4'));
+                  setState(() {
+                    uploadButtonStatus = 2;
+                  });
+                  upload(File('C:\\Users\\Yuske\\Downloads\\lapti.mp4'),
+                      changeUploadButtonStatus);
                 },
-                child: const Text('Upload Video'),
                 style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all<Color>(kPrimaryColor),
                   foregroundColor:
                       MaterialStateProperty.all<Color>(Colors.black),
-                )),
+                ),
+                child: {
+                  0: const Text('Upload'),
+                  1: const Text('Upload failed'),
+                  2: const Text('Uploading...'),
+                }[uploadButtonStatus] as Widget),
           ],
         ),
       ),
